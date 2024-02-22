@@ -11,13 +11,13 @@ var (
 	rwMutex sync.RWMutex
 )
 
-func readValue() {
+func readValue(goroutineId string) {
 	// RWMutex lock for reading (1 to N goroutines / reading)
 	rwMutex.RLock()
 	defer rwMutex.RUnlock()
 
 	// Critical section for reading
-	fmt.Printf("Read value: %d\n", value)
+	fmt.Printf("%s: Read value: %d\n", goroutineId, value)
 }
 
 func writeValue(val int) {
@@ -34,8 +34,9 @@ func main() {
 
 	go writeValue(100)
 
-	for i := 0; i < 50; i++ {
-		go readValue()
+	for i := 0; i < 500; i++ {
+		goroutineId := fmt.Sprintf("Goroutine %d", i+1)
+		go readValue(goroutineId)
 	}
 
 	time.Sleep(1 * time.Second)
